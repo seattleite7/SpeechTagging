@@ -67,7 +67,7 @@ namespace SpeechTagging
         static void Main(string[] args)
         {
             //Use this function to get words instead:
-            var words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt");
+            var words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"); 
             //wordAndNextWords key: word, value: dictionary where the key is a following word and value is 
             //the number of times the following word occured
             wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
