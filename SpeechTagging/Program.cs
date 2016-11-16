@@ -7,19 +7,16 @@ using System.Threading.Tasks;
 namespace SpeechTagging
 {
     class Program
-    {
-        /*public class NextWordTracker
-        {
-
-        }*/
+    { 
 
         static Dictionary<string, Dictionary<string, int>> wordAndNextWords;
-        static string predictNextWord(string word)
+        static WordAndPercentage predictNextWord(string word)
         {
             if (wordAndNextWords.ContainsKey(word))
             {
                 string topWord = "";
                 int times = 0;
+                int total = 0;
                 foreach(KeyValuePair<string, int> pair in wordAndNextWords[word])
                 {
                     if(pair.Value > times)
@@ -27,10 +24,12 @@ namespace SpeechTagging
                         topWord = pair.Key;
                         times = pair.Value;
                     }
+                    total++;
                 }
-                return topWord;
+                double percent = (double)times / (double)total;
+                return new WordAndPercentage(topWord, percent);
             }
-            return "hi";
+            return new WordAndPercentage("word isn't in database", 100);
         }
 
         static void loadTests(List<Word> words)
@@ -38,7 +37,7 @@ namespace SpeechTagging
             for (int i = 0; i < words.Count - 1; i++)
             {
                 string wordA = words[i].Content.ToLower();
-                string wordB = words[i].Content.ToLower();
+                string wordB = words[i + 1].Content.ToLower();
                 if (!wordAndNextWords.ContainsKey(wordA)) //If we haven't seen wordA yet
                 {
                     Dictionary<string, int> newNext = new Dictionary<string, int>();
@@ -64,12 +63,18 @@ namespace SpeechTagging
         static void Main(string[] args)
         {
             //Use this function to get words instead:
-            var words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"); 
+            var words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt");
             //wordAndNextWords key: word, value: dictionary where the key is a following word and value is 
+            wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
             //the number of times the following word occured
             
             loadTests(words2);
-            string answer = predictNextWord("doctor");
+            Console.WriteLine("Please enter a word and I'll tell you your suggested next word.");
+            string searchNext = Console.ReadLine();
+            WordAndPercentage answer = predictNextWord(searchNext);
+            Console.WriteLine("Predicted Next: " + answer.word + " " + answer.percent * 100);
+            Console.WriteLine("Press enter to exit");
+            Console.ReadLine();
         }
     }
 }
