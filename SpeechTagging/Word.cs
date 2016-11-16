@@ -8,7 +8,6 @@ namespace SpeechTagging
 {
     public class Word
     {
-        public static string[] DELIMITERS = new string[] { "_", "\r\n" };
         public string Content { get; set; }
         public WordType PartOfSpeech { get; set; }
         public Word() { }

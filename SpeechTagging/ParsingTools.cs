@@ -9,13 +9,7 @@ namespace SpeechTagging
 {
     public static class ParsingTools
     {
-        public static string ProjectDirectory { get
-            {
-                return Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + "\\";
-
-
-            }
-        }
+        public static string ProjectDirectory { get {return Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + "\\";}}
 
 
         //http://www.comp.leeds.ac.uk/amalgam/tagsets/upenn.html
@@ -133,7 +127,7 @@ namespace SpeechTagging
                 string[] split = line.Split(' ');
                 for (int n = 0; n < split.Length; n++)
                 {
-                    words.Add(new Word(split[n].Trim())); //Trim is for potential newlines
+                    words.Add(new Word(split[n].Trim()));
                 }
             }
             return words;
