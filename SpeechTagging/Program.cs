@@ -33,15 +33,12 @@ namespace SpeechTagging
             return "hi";
         }
 
-        static void loadTests(string[] words)
+        static void loadTests(List<Word> words)
         {
-            for (int i = 0; i < words.Length - 1; i++)
+            for (int i = 0; i < words.Count - 1; i++)
             {
-                char[] underscore = { '_' };
-                string[] wordAndTag = words[i].Split(underscore);
-                string[] nextWord = words[i + 1].Split(underscore);
-                string wordA = wordAndTag[0].ToLower(); ;
-                string wordB = nextWord[0].ToLower();
+                string wordA = words[i].Content.ToLower();
+                string wordB = words[i].Content.ToLower();
                 if (!wordAndNextWords.ContainsKey(wordA)) //If we haven't seen wordA yet
                 {
                     Dictionary<string, int> newNext = new Dictionary<string, int>();
@@ -70,16 +67,8 @@ namespace SpeechTagging
             var words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"); 
             //wordAndNextWords key: word, value: dictionary where the key is a following word and value is 
             //the number of times the following word occured
-            wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
-            string inputFile = "trainingDataset.txt"; //put this in the bin folder - we can talk about how we want to do this later
-            string inputFile2 = "testingDataset.txt";
-            string text = System.IO.File.ReadAllText(inputFile);
-            string text2 = System.IO.File.ReadAllText(inputFile2);
-            char[] delimiterChars = {' '};
-            string[] words = text.Split(delimiterChars);
-            loadTests(words);
-            words = text2.Split(delimiterChars);
-            loadTests(words);
+            
+            loadTests(words2);
             string answer = predictNextWord("doctor");
         }
     }
