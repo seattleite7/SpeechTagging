@@ -1,1 +1,6 @@
 c:\users\eric\documents\visual studio 2015\Projects\SpeechTagging\SpeechTagging\bin\Debug\SpeechTagging.exe.config
+C:\Users\Eric\Documents\Visual Studio 2015\Projects\SpeechTagging\SpeechTagging\bin\Debug\SpeechTagging.exe
+C:\Users\Eric\Documents\Visual Studio 2015\Projects\SpeechTagging\SpeechTagging\bin\Debug\SpeechTagging.pdb
+C:\Users\Eric\Documents\Visual Studio 2015\Projects\SpeechTagging\SpeechTagging\obj\Debug\SpeechTagging.exe
+C:\Users\Eric\Documents\Visual Studio 2015\Projects\SpeechTagging\SpeechTagging\obj\Debug\SpeechTagging.pdb
+C:\Users\Eric\Documents\Visual Studio 2015\Projects\SpeechTagging\SpeechTagging\obj\Debug\SpeechTagging.csprojResolveAssemblyReference.cache

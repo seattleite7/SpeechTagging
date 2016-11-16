@@ -19,7 +19,7 @@ namespace SpeechTagging
         Dash,
         SentenceTerminator,
         ColorOrEllipsis,
-        Conjunction,
+        Conjunction_Coordinating,
         Numeral_Cardinal,
         Determiner,
         There_Existential,

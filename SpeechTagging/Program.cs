@@ -10,7 +10,12 @@ namespace SpeechTagging
     {
         static void Main(string[] args)
         {
+            var words = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt");
 
+
+
+
+            Console.ReadLine();
         }
     }
 }
