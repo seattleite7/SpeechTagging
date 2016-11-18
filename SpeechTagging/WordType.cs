@@ -9,7 +9,7 @@ namespace SpeechTagging
     //http://www.comp.leeds.ac.uk/amalgam/tagsets/upenn.html
     public enum WordType
     {
-        Undefined,
+        Undefined = 1,
         Dollar,
         OpeningQuote,
         ClosingQuote,
@@ -54,7 +54,12 @@ namespace SpeechTagging
         WH_Determiner,
         WH_Pronoun,
         WH_PossessivePronoun,
-        WH_Adverb
+        WH_Adverb,
+
+
+        COUNT
 
     }
+
+   
 }
