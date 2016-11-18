@@ -60,14 +60,45 @@ namespace SpeechTagging
             Console.WriteLine(wordAndNextWords.Count);
         }
 
+        static Dictionary<StateTransition, double> createTransitionModel(List<Word> words)
+        {
+            Dictionary<StateTransition, int> counter = new Dictionary<StateTransition, int>(); //counts instances of the state transition
+            Dictionary<WordType, int> fromCounter = new Dictionary<WordType, int>(); //counts times we see the WordType from (needed for percentage)
+            Dictionary<StateTransition, double> model = new Dictionary<StateTransition, double>(); //Holds answer
+            for(int i=0; i< words.Count - 1; i++)
+            {
+                if (fromCounter.ContainsKey(words[i].PartOfSpeech))
+                {
+                    fromCounter[words[i].PartOfSpeech]++;
+                } else
+                {
+                    fromCounter.Add(words[i].PartOfSpeech, 1);
+                }
+                StateTransition transition = new StateTransition(words[i].PartOfSpeech, words[i + 1].PartOfSpeech);
+                if (counter.ContainsKey(transition))
+                {
+                    counter[transition]++;
+                } else
+                {
+                    counter.Add(transition, 1);
+                }
+            }
+
+            foreach(KeyValuePair<StateTransition, int> pair in counter)
+            {
+                model.Add(pair.Key, (double)pair.Value / (double)fromCounter[(WordType)pair.Key.from]);
+            }
+            return model;
+        }
+
         static void Main(string[] args)
         {
             //Use this function to get words instead:
-            var words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt");
+            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt");
             //wordAndNextWords key: word, value: dictionary where the key is a following word and value is 
             wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
             //the number of times the following word occured
-            
+            Dictionary<StateTransition, double> transitionModel = createTransitionModel(words2);
             loadTests(words2);
             Console.WriteLine("Please enter a word and I'll tell you your suggested next word.");
             string searchNext = Console.ReadLine();
