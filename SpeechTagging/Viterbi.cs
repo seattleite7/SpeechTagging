@@ -17,19 +17,27 @@ namespace SpeechTagging
  T=length(Y); # length of observation series
  */
 
-         public static List<WordType> DoViterbi(List<string> sentence,  Dictionary<StateTransition, double> transitionProbs, Dictionary<ObservationFromState, double> observationProbs, Dictionary<WordType, double> initialProbs  )
+        /// <summary>
+        /// Does the Viberti algorithm, giving the most likely parts of speech for a sentence.
+        /// </summary>
+        /// <param name="sentence">The sentence.</param>
+        /// <param name="transitionProbs">The probability of transitioning from one part of speech to another (probability: 0-1)</param>
+        /// <param name="observationProbs">The probability of observing a word given a part of speech: (probability: 0-1) (i.e. if the part of speech is "Noun", what is the probability that word is "Dog" or "Cat" ? )</param>
+        /// <param name="initialProbs">The probability that a part of speech appears at the beginning of a sentence (probability: 0-1)</param>
+        /// <returns>Returns the 1-based (NOT 0-Based) array of the parts of speech</returns>
+        public static WordType[] DoViterbi(List<string> sentence,  Dictionary<StateTransition, double> transitionProbs, Dictionary<ObservationFromState, double> observationProbs, Dictionary<WordType, double> initialProbs  )
          {
-             const int NUM_OBSERVATION_CATS_N = (int)WordType.COUNT + 1;
-            const int NUM_POSSIBLE_STATES_K = NUM_OBSERVATION_CATS_N;
+              const int NUM_POSSIBLE_STATES_K = (int)WordType.COUNT;
 
-            int WORKING_LEN_T = sentence.Count + 1;
+            int WORKING_LEN_T = sentence.Count;
 
-             double[,] T1 = new double[NUM_POSSIBLE_STATES_K, WORKING_LEN_T];
-             int[,] T2 = new int[NUM_POSSIBLE_STATES_K, WORKING_LEN_T];
+            //1-based
+             double[,] T1 = new double[NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1];
+             int[,] T2 = new int[NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1];
+            int[] Z = new int[WORKING_LEN_T + 1];
+            WordType[] X = new WordType[WORKING_LEN_T + 1];
 
-             //TODO: Initial probablilities?
-             double INITIAL_PROB_TODO = 0.1;
-
+         
              for (int i = 0; i < NUM_POSSIBLE_STATES_K; i++)
              {
                  T1[i, 1] = initialProbs[(WordType)i] ;
@@ -64,19 +72,20 @@ namespace SpeechTagging
                  }
              }
 
-            int maxZT = int.MinValue;
-            double maxZTval = double.MinValue;
-            StateTransition stateTrans = new SpeechTagging.StateTransition(WordType.Undefined, )
+            double maxKTval = double.MinValue;
+           
             for (int k = 0; k < NUM_POSSIBLE_STATES_K; k++)
             {
-
+                if (T1[k, WORKING_LEN_T] > maxKTval) { maxKTval = T1[k, WORKING_LEN_T]; Z[WORKING_LEN_T] = k; }
             }
-
+            WordType XT = (WordType)Z[WORKING_LEN_T];
             for (int i = WORKING_LEN_T; i >= 2; i--)
             {
-               
+                Z[i - 1] = T2[Z[i], i];
+                X[i - 1] = (WordType)Z[i - 1];
             }
 
+            return X;
          }
 
 
