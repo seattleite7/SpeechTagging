@@ -91,6 +91,65 @@ namespace SpeechTagging
             return model;
         }
 
+
+        static Dictionary<ObservationFromState, double> createObservationModel(List<Word> words)
+        {
+            Dictionary<ObservationFromState, double> model = new Dictionary<ObservationFromState, double>(); //actual model
+            Dictionary<ObservationFromState, int> wordCount = new Dictionary<ObservationFromState, int>(); //how many times the ObservationFromState occurs
+            Dictionary<WordType, int> typeCount = new Dictionary<WordType, int>(); //how many times WordType occurs
+            for(int i=0; i<words.Count - 1; i++)
+            {
+                if (typeCount.ContainsKey(words[i].PartOfSpeech))
+                {
+                    typeCount[words[i].PartOfSpeech]++;
+                } else
+                {
+                    typeCount.Add(words[i].PartOfSpeech, 1);
+                }
+                ObservationFromState observation = new ObservationFromState(words[i].Content, words[i].PartOfSpeech);
+                if (wordCount.ContainsKey(observation))
+                {
+                    wordCount[observation]++;
+                } else
+                {
+                    wordCount.Add(observation, 1);
+                }
+            }
+            foreach(KeyValuePair<ObservationFromState, int> pair in wordCount)
+            {
+                model.Add(pair.Key, (double)pair.Value / (double)typeCount[pair.Key.state]);
+            }
+            return model;
+        }
+
+        static Dictionary<WordType, double> beginSentenceProb(List<Word> words)
+        {
+            Dictionary<WordType, double> probability = new Dictionary<WordType, double>();
+            Dictionary<WordType, int> counter = new Dictionary<WordType, int>();
+            int totalStarts = 1; //assuming the beginning is the start of a sentence
+
+            for(int i = 0; i < words.Count - 1; i++)
+            {
+                if(words[i].PartOfSpeech == WordType.SentenceTerminator)
+                {
+                    totalStarts++;
+                    if(counter.ContainsKey(words[i + 1].PartOfSpeech))
+                    {
+                        counter[words[i + 1].PartOfSpeech]++;
+                    } else
+                    {
+                        counter.Add(words[i + 1].PartOfSpeech, 1);
+                    }
+                }
+            }
+
+            foreach(KeyValuePair<WordType, int> pair in counter)
+            {
+                probability.Add(pair.Key, (double)pair.Value / (double)totalStarts);
+            }
+            return probability;
+        }
+
         static void Main(string[] args)
         {
             //Use this function to get words instead:
@@ -99,6 +158,11 @@ namespace SpeechTagging
             wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
             //the number of times the following word occured
             Dictionary<StateTransition, double> transitionModel = createTransitionModel(words2);
+            Dictionary<ObservationFromState, double> observationModel = createObservationModel(words2);
+            Dictionary<WordType, double> sentenceStarters = beginSentenceProb(words2);
+
+
+
             loadTests(words2);
             Console.WriteLine("Please enter a word and I'll tell you your suggested next word.");
             string searchNext = Console.ReadLine();
