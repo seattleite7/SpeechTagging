@@ -84,7 +84,7 @@ namespace SpeechTagging
             {
                 if (T1[k, WORKING_LEN_T] > maxKTval) { maxKTval = T1[k, WORKING_LEN_T]; Z[WORKING_LEN_T] = k; }
             }
-            WordType XT = (WordType)Z[WORKING_LEN_T];
+            X[WORKING_LEN_T] = (WordType)Z[WORKING_LEN_T];
             for (int i = WORKING_LEN_T; i >= 2; i--)
             {
                 Z[i - 1] = T2[Z[i], i];
