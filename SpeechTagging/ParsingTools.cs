@@ -109,7 +109,7 @@ namespace SpeechTagging
                 case "WRB":
                     return WordType.WH_Adverb;
                 default:
-                    Console.WriteLine("Unrecognized tag '" + tag + "'");
+                  //  Console.WriteLine("Unrecognized tag '" + tag + "'");
                     return WordType.Undefined;
 
 

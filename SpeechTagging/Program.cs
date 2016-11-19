@@ -57,7 +57,7 @@ namespace SpeechTagging
                     }
                 }
             }
-            Console.WriteLine(wordAndNextWords.Count);
+           // Console.WriteLine(wordAndNextWords.Count);
         }
 
         static Dictionary<StateTransition, double> createTransitionModel(List<Word> words)
@@ -152,8 +152,29 @@ namespace SpeechTagging
 
         static void Main(string[] args)
         {
+
+
+            // List<string> sentence = new List<string>() { "What", "child", "is", "this", "?" };
+            // List<string> sentence = new List<string>() { "With", "a", "little", "help", "from", "my", "friends", "!" };
+
+            Console.WriteLine("Enter your sentence. Please separate every symbol with a space (that includes periods, exclamation marks, etc.)");
+            string sentenceWhole = Console.ReadLine();
+            List<string> sentence = sentenceWhole.Split(' ').ToList();
+            Console.WriteLine();
+
+            Console.Write("You entered: ");
+            Console.Write("[" + sentence[0] + "]");
+            for (int n = 1; n < sentence.Count; n++)
+            {
+                Console.Write(", " + "[" + sentence[n] + "]");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Please wait...");
+
+
+
             //Use this function to get words instead:
-            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt");
+            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "training_dataset.txt");
             //wordAndNextWords key: word, value: dictionary where the key is a following word and value is 
             wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
             //the number of times the following word occured
@@ -161,8 +182,18 @@ namespace SpeechTagging
             Dictionary<ObservationFromState, double> observationModel = createObservationModel(words2);
             Dictionary<WordType, double> sentenceStarters = beginSentenceProb(words2);
 
-            List<string> sentence = new List<string>() { "The", "dog", "runs", "." };
+
+
             var res = Viterbi.DoViterbi(sentence, transitionModel, observationModel, sentenceStarters);
+            Console.Write("Our results: ");
+            Console.Write(res[1]);
+            for (int n = 2; n < res.Length; n++)
+            {
+                Console.Write(", " + res[n]);
+            }
+
+            Console.WriteLine();
+
 
             loadTests(words2);
             Console.WriteLine("Please enter a word and I'll tell you your suggested next word.");
