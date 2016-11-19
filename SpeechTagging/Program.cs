@@ -161,7 +161,8 @@ namespace SpeechTagging
             Dictionary<ObservationFromState, double> observationModel = createObservationModel(words2);
             Dictionary<WordType, double> sentenceStarters = beginSentenceProb(words2);
 
-
+            List<string> sentence = new List<string>() { "The", "dog", "runs", "." };
+            var res = Viterbi.DoViterbi(sentence, transitionModel, observationModel, sentenceStarters);
 
             loadTests(words2);
             Console.WriteLine("Please enter a word and I'll tell you your suggested next word.");

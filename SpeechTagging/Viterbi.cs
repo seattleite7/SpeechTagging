@@ -38,7 +38,7 @@ namespace SpeechTagging
             WordType[] X = new WordType[WORKING_LEN_T + 1];
 
          
-             for (int i = 0; i < NUM_POSSIBLE_STATES_K; i++)
+             for (int i =  1; i <= NUM_POSSIBLE_STATES_K; i++)
              {
                  T1[i, 1] = initialProbs[(WordType)i] ;
                  T2[i, 1] = 0;
