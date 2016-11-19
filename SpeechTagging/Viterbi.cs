@@ -8,6 +8,9 @@ namespace SpeechTagging
 {
     public class Viterbi
     {
+
+        const double EPSILON = 0.000000001;
+
         //Φ[t](i) = argmax[j](δ[t-1](j) * a[ji])
         //P(X at time t) = max[for each i = prevstate] (P(i at time t - 1) * P(X|i) * P(observation at time t|X)
         // A = transition matrix
@@ -40,7 +43,7 @@ namespace SpeechTagging
          
              for (int i =  1; i <= NUM_POSSIBLE_STATES_K; i++)
              {
-                 T1[i, 1] = initialProbs[(WordType)i] ;
+                 T1[i, 1] = initialProbs.ContainsKey((WordType)i) ? initialProbs[(WordType)i] : EPSILON;
                  T2[i, 1] = 0;
              }
              for (int i = 2; i <= WORKING_LEN_T; i++)
@@ -56,12 +59,15 @@ namespace SpeechTagging
                     ObservationFromState observationTrans = new ObservationFromState(sentence[i - 1], sj);
 
 
-                     for (int k = 0; k < NUM_POSSIBLE_STATES_K; k++)
+                     for (int k = 1; k <= NUM_POSSIBLE_STATES_K; k++)
                      {
                          stateTrans.from = (WordType)k;
-                        double val = T1[k, i - 1] * transitionProbs[stateTrans] * observationProbs[observationTrans];
+                        double val = T1[k, i - 1]
+                            * (transitionProbs.ContainsKey(stateTrans) ? transitionProbs[stateTrans] : EPSILON) 
+                            * (observationProbs.ContainsKey(observationTrans) ?  observationProbs[observationTrans] : EPSILON);
                         if (val > maxKVal1) { maxKVal1 = val; }
-                        val = T1[k, i - 1] * transitionProbs[stateTrans];
+                        val = T1[k, i - 1]
+                            * (transitionProbs.ContainsKey(stateTrans) ? transitionProbs[stateTrans] : EPSILON);
                         if (val > maxKVal2) { maxKVal2 = val;  maxK2 = k; }
 
                      }
@@ -74,7 +80,7 @@ namespace SpeechTagging
 
             double maxKTval = double.MinValue;
            
-            for (int k = 0; k < NUM_POSSIBLE_STATES_K; k++)
+            for (int k = 1; k <= NUM_POSSIBLE_STATES_K; k++)
             {
                 if (T1[k, WORKING_LEN_T] > maxKTval) { maxKTval = T1[k, WORKING_LEN_T]; Z[WORKING_LEN_T] = k; }
             }
