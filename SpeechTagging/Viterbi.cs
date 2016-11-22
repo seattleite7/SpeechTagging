@@ -38,14 +38,17 @@ namespace SpeechTagging
             PrettyTable<double> T1 = new PrettyTable<double>(NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1);
              PrettyTable<int> T2 = new PrettyTable<int>(NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1);
 
-            Console.WriteLine(T1.ToString());
+           // Console.WriteLine(T1.ToString());
             int[] Z = new int[WORKING_LEN_T + 1];
             WordType[] X = new WordType[WORKING_LEN_T + 1];
 
          
              for (int i =  1; i <= NUM_POSSIBLE_STATES_K; i++)
              {
-                 T1[i, 1] = initialProbs.ContainsKey((WordType)i) ? initialProbs[(WordType)i] : EPSILON;
+                WordType si = (WordType)i;
+                ObservationFromState observationTrans = new SpeechTagging.ObservationFromState(sentence[0], si);
+                 T1[i, 1] = (initialProbs.ContainsKey((WordType)i) ? initialProbs[(WordType)i] : EPSILON) *
+                            (observationProbs.ContainsKey(observationTrans) ? observationProbs[observationTrans] : EPSILON);
                  T2[i, 1] = 0;
              }
              for (int i = 2; i <= WORKING_LEN_T; i++)
@@ -68,10 +71,11 @@ namespace SpeechTagging
                             * (transitionProbs.ContainsKey(stateTrans) ? transitionProbs[stateTrans] : EPSILON) 
                             * (observationProbs.ContainsKey(observationTrans) ?  observationProbs[observationTrans] : EPSILON);
                         if (val > maxKVal1) { maxKVal1 = val; }
+
                         val = T1[k, i - 1]
                             * (transitionProbs.ContainsKey(stateTrans) ? transitionProbs[stateTrans] : EPSILON);
                         if (val > maxKVal2) { maxKVal2 = val;  maxK2 = k; }
-
+                       
                      }
                     WordType maxK2wordtype = (WordType)maxK2;
 
@@ -79,7 +83,8 @@ namespace SpeechTagging
                     T2[j, i] = maxK2;
 
                  }
-                Console.WriteLine(T2.ToString());
+               // Console.WriteLine(T1.ToString());
+               // Console.WriteLine(T2.ToString());
              }
 
             double maxKTval = double.MinValue;
@@ -99,5 +104,10 @@ namespace SpeechTagging
          }
 
 
+
+         public static void Adjustments(Dictionary<StateTransition, double> transitionProbs, Dictionary<ObservationFromState, double> observationProbs, Dictionary<WordType, double> initialProbs)
+        {
+            
+        }
      }
  }

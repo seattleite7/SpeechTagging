@@ -128,7 +128,9 @@ namespace SpeechTagging
                 string[] split = line.Split(' ');
                 for (int n = 0; n < split.Length; n++)
                 {
-                    words.Add(new Word(split[n].Trim()));
+                    Word w = new Word(split[n].Trim());
+                    if (w.PartOfSpeech != WordType.Undefined)
+                        words.Add(new Word(split[n].Trim()));
                 }
             }
             return words;

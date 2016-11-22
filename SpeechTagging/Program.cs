@@ -249,10 +249,68 @@ namespace SpeechTagging
         }
        
        
+        static void Phase3()
+        {
+            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "training_dataset.txt");
+            // words2.AddRange(ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"));
+
+
+
+            Console.WriteLine("Enter your file name.");
+            string sentenceWhole = Console.ReadLine();
+            List<string> sentence = sentenceWhole.Split(' ').ToList();
+            for (int n = sentence.Count - 1; n >= 0; n--)
+            {
+                sentence[n] = sentence[n].Trim();
+                if (sentence[n] == "")
+                    sentence.RemoveAt(n);
+                else
+                    sentence[n] = sentence[n].ToLower();
+            }
+
+            Console.WriteLine();
+
+            Console.Write("You entered: ");
+            Console.Write("[" + sentence[0] + "]");
+            for (int n = 1; n < sentence.Count; n++)
+            {
+                Console.Write(", " + "[" + sentence[n] + "]");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Please wait...");
+
+
+            Dictionary<StateTransition, double> transitionModel = createTransitionModel(words2);
+            //printTransitionMatrix(transitionModel); Environment.Exit(0);
+
+            Dictionary<ObservationFromState, double> observationModel = createObservationModel(words2);
+            //  loadTests(words2);
+            //  Printing.printObservationMatrix(observationModel, myDictionary);
+            Dictionary<WordType, double> sentenceStarters = beginSentenceProb(words2);
+
+
+            //  foreach (var s in sentenceStarters)
+            //  {
+            //      Console.WriteLine(s.Key.ToString() + ", " + s.Value.ToString());
+            //  }
+
+
+            var res = Viterbi.DoViterbi(sentence, transitionModel, observationModel, sentenceStarters);
+            Console.Write("Our results: ");
+            Console.Write(res[1]);
+            for (int n = 2; n < res.Length; n++)
+            {
+                Console.Write(", " + res[n]);
+            }
+
+
+            Console.WriteLine();
+        }
+
         static void Phase2()
         {
             List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "training_dataset.txt");
-           // words2.AddRange(ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"));
+            words2.AddRange(ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"));
 
 
 
@@ -303,8 +361,10 @@ namespace SpeechTagging
                 Console.Write(", " + res[n]);
             }
 
+           
             Console.WriteLine();
         }
+
 
         static void Main(string[] args)
         {
