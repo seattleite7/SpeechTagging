@@ -120,6 +120,7 @@ namespace SpeechTagging
 
         public static List<Word> GetListOfWords(string filepath)
         {
+            Console.WriteLine("Using " + filepath.Replace(ParsingTools.ProjectDirectory, "") + "...");
             List<Word> words = new List<Word>();
             string[] lines = System.IO.File.ReadAllLines(filepath);
             foreach (string line in lines)

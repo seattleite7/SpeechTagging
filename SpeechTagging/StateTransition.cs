@@ -15,5 +15,9 @@ namespace SpeechTagging
             this.from = from;
             this.to = to;
         }
+        public override string ToString()
+        {
+            return from.ToString() + " -> " + to.ToString();
+        }
     }
 }

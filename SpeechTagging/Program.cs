@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,29 @@ namespace SpeechTagging
     { 
 
         static Dictionary<string, Dictionary<string, int>> wordAndNextWords;
+        static Dictionary<string, List<WordAndPercentage>> wordAndNextWordProbabilities;
+        static Random chaos = new Random();
+
+        static WordAndPercentage getTopWord(string word)
+        {
+
+           
+            if (!wordAndNextWordProbabilities.ContainsKey(word))
+                return null;
+
+            double sample = chaos.NextDouble();
+           for (int n = 0; n < wordAndNextWordProbabilities[word].Count; n++)
+            {
+                sample -= wordAndNextWordProbabilities[word][n].percent;
+                if (sample <= 0)
+                    return wordAndNextWordProbabilities[word][n];
+               
+            }
+            return null;
+        
+        }
+
+        /*
         static WordAndPercentage predictNextWord(string word)
         {
             if (wordAndNextWords.ContainsKey(word))
@@ -31,11 +55,22 @@ namespace SpeechTagging
             }
             return new WordAndPercentage("word isn't in database", 100);
         }
+        */
+
+        static WordAndPercentage predictNextWord(string word)
+        {
+            WordAndPercentage w = getTopWord(word);
+            if (w == null)
+                return new WordAndPercentage("Word does not exist", 0);
+            return w;
+        }
 
         static void loadTests(List<Word> words)
         {
+            HashSet<string> myDictionary = new HashSet<string>();
             for (int i = 0; i < words.Count - 1; i++)
             {
+                myDictionary.Add(words[i].Content.ToLower());
                 string wordA = words[i].Content.ToLower();
                 string wordB = words[i + 1].Content.ToLower();
                 if (!wordAndNextWords.ContainsKey(wordA)) //If we haven't seen wordA yet
@@ -57,9 +92,37 @@ namespace SpeechTagging
                     }
                 }
             }
-           // Console.WriteLine(wordAndNextWords.Count);
+
+
+            wordAndNextWordProbabilities = new Dictionary<string, List<WordAndPercentage>>();
+            
+            foreach (var kv in wordAndNextWords)
+            {
+                int total = 0;
+                Dictionary<string, int> nextWordAndCounts = new Dictionary<string, int>();
+                foreach (var nextword in kv.Value)
+                {
+                    total += nextword.Value;
+                    nextWordAndCounts.Add(nextword.Key, nextword.Value);
+                }
+
+                wordAndNextWordProbabilities.Add(kv.Key, new List<SpeechTagging.WordAndPercentage>());
+                foreach (var nextWordAndCount in nextWordAndCounts)
+                {
+                    wordAndNextWordProbabilities[kv.Key].Add(new SpeechTagging.WordAndPercentage(nextWordAndCount.Key, (double)nextWordAndCount.Value / total));
+                }
+
+            }
         }
 
+        static bool getNextWordInValue(Dictionary<string, WordAndPercentage> dict, string word)
+        {
+            foreach (var kv in dict)
+            {
+                if (kv.Value.word == word) return true;
+            }
+            return false;
+        }
         static Dictionary<StateTransition, double> createTransitionModel(List<Word> words)
         {
             Dictionary<StateTransition, int> counter = new Dictionary<StateTransition, int>(); //counts instances of the state transition
@@ -88,6 +151,10 @@ namespace SpeechTagging
             {
                 model.Add(pair.Key, (double)pair.Value / (double)fromCounter[(WordType)pair.Key.from]);
             }
+
+
+        
+
             return model;
         }
 
@@ -147,15 +214,44 @@ namespace SpeechTagging
             {
                 probability.Add(pair.Key, (double)pair.Value / (double)totalStarts);
             }
+       
             return probability;
         }
 
-        static void Main(string[] args)
+
+        static void Phase1()
         {
+            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "training_dataset.txt");
+            words2.AddRange(ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"));
 
 
-            // List<string> sentence = new List<string>() { "What", "child", "is", "this", "?" };
-            // List<string> sentence = new List<string>() { "With", "a", "little", "help", "from", "my", "friends", "!" };
+            loadTests(words2);
+            // while (true)
+            // {
+            Console.WriteLine("Enter a seed word:");
+            string searchNext = Console.ReadLine();
+            Console.WriteLine("Enter how many words to generate:");
+            int genNum = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine();
+            for (int n = 0; n < genNum; n++)
+            {
+                WordAndPercentage answer = predictNextWord(searchNext);
+                searchNext = answer.word;
+                Console.Write(searchNext + " ");
+            }
+        }
+        static string escape(string text)
+        {
+            return "\"" + text.Replace("\"", "\"\"") + "\"";
+        }
+
+       
+        static void Phase2()
+        {
+            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "training_dataset.txt");
+           // words2.AddRange(ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "testing_dataset.txt"));
+
+
 
             Console.WriteLine("Enter your sentence. Please separate every symbol with a space (that includes periods, exclamation marks, etc.)");
             string sentenceWhole = Console.ReadLine();
@@ -172,16 +268,17 @@ namespace SpeechTagging
             Console.WriteLine("Please wait...");
 
 
-
-            //Use this function to get words instead:
-            List<Word> words2 = ParsingTools.GetListOfWords(ParsingTools.ProjectDirectory + "training_dataset.txt");
-            //wordAndNextWords key: word, value: dictionary where the key is a following word and value is 
-            wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
-            //the number of times the following word occured
             Dictionary<StateTransition, double> transitionModel = createTransitionModel(words2);
+            //printTransitionMatrix(transitionModel); Environment.Exit(0);
+
             Dictionary<ObservationFromState, double> observationModel = createObservationModel(words2);
             Dictionary<WordType, double> sentenceStarters = beginSentenceProb(words2);
 
+
+            foreach (var s in sentenceStarters)
+            {
+                Console.WriteLine(s.Key.ToString() + ", " + s.Value.ToString());
+            }
 
 
             var res = Viterbi.DoViterbi(sentence, transitionModel, observationModel, sentenceStarters);
@@ -193,13 +290,20 @@ namespace SpeechTagging
             }
 
             Console.WriteLine();
+        }
+
+        static void Main(string[] args)
+        {
 
 
-            loadTests(words2);
-            Console.WriteLine("Please enter a word and I'll tell you your suggested next word.");
-            string searchNext = Console.ReadLine();
-            WordAndPercentage answer = predictNextWord(searchNext);
-            Console.WriteLine("Predicted Next: " + answer.word + " " + answer.percent * 100);
+            // List<string> sentence = new List<string>() { "What", "child", "is", "this", "?" };
+            // List<string> sentence = new List<string>() { "With", "a", "little", "help", "from", "my", "friends", "!" };
+
+            wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
+
+            Phase1();
+
+
             Console.WriteLine("Press enter to exit");
             Console.ReadLine();
         }
