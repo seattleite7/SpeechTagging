@@ -16,7 +16,7 @@ namespace SpeechTagging
             string[] split = underscored_encoding.Split('_');
             if (split.Length != 2)
                 throw new Exception("Expected exactly 1 underscore");
-            Content = split[0];
+            Content = split[0].ToLower();
             PartOfSpeech = ParsingTools.GetWordType(split[1]);
         }
     }

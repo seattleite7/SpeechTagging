@@ -35,8 +35,10 @@ namespace SpeechTagging
             int WORKING_LEN_T = sentence.Count;
 
             //1-based
-             double[,] T1 = new double[NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1];
-             int[,] T2 = new int[NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1];
+            PrettyTable<double> T1 = new PrettyTable<double>(NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1);
+             PrettyTable<int> T2 = new PrettyTable<int>(NUM_POSSIBLE_STATES_K + 1, WORKING_LEN_T + 1);
+
+            Console.WriteLine(T1.ToString());
             int[] Z = new int[WORKING_LEN_T + 1];
             WordType[] X = new WordType[WORKING_LEN_T + 1];
 
@@ -71,11 +73,13 @@ namespace SpeechTagging
                         if (val > maxKVal2) { maxKVal2 = val;  maxK2 = k; }
 
                      }
+                    WordType maxK2wordtype = (WordType)maxK2;
 
                     T1[j, i] = maxKVal1;
                     T2[j, i] = maxK2;
 
                  }
+                Console.WriteLine(T2.ToString());
              }
 
             double maxKTval = double.MinValue;

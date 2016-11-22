@@ -12,6 +12,7 @@ namespace SpeechTagging
 
         static Dictionary<string, Dictionary<string, int>> wordAndNextWords;
         static Dictionary<string, List<WordAndPercentage>> wordAndNextWordProbabilities;
+        static List<string> myDictionary;
         static Random chaos = new Random();
 
         static WordAndPercentage getTopWord(string word)
@@ -67,10 +68,10 @@ namespace SpeechTagging
 
         static void loadTests(List<Word> words)
         {
-            HashSet<string> myDictionary = new HashSet<string>();
+            HashSet<string> myDictionaryH = new HashSet<string>();
             for (int i = 0; i < words.Count - 1; i++)
             {
-                myDictionary.Add(words[i].Content.ToLower());
+                myDictionaryH.Add(words[i].Content.ToLower());
                 string wordA = words[i].Content.ToLower();
                 string wordB = words[i + 1].Content.ToLower();
                 if (!wordAndNextWords.ContainsKey(wordA)) //If we haven't seen wordA yet
@@ -113,6 +114,10 @@ namespace SpeechTagging
                 }
 
             }
+
+            myDictionary = myDictionaryH.ToList();
+
+            //Printing.printWordPredictorMatrix(wordAndNextWordProbabilities, myDictionary);
         }
 
         static bool getNextWordInValue(Dictionary<string, WordAndPercentage> dict, string word)
@@ -200,6 +205,7 @@ namespace SpeechTagging
                 if(words[i].PartOfSpeech == WordType.SentenceTerminator)
                 {
                     totalStarts++;
+                    
                     if(counter.ContainsKey(words[i + 1].PartOfSpeech))
                     {
                         counter[words[i + 1].PartOfSpeech]++;
@@ -226,6 +232,7 @@ namespace SpeechTagging
 
 
             loadTests(words2);
+     
             // while (true)
             // {
             Console.WriteLine("Enter a seed word:");
@@ -240,11 +247,7 @@ namespace SpeechTagging
                 Console.Write(searchNext + " ");
             }
         }
-        static string escape(string text)
-        {
-            return "\"" + text.Replace("\"", "\"\"") + "\"";
-        }
-
+       
        
         static void Phase2()
         {
@@ -256,6 +259,15 @@ namespace SpeechTagging
             Console.WriteLine("Enter your sentence. Please separate every symbol with a space (that includes periods, exclamation marks, etc.)");
             string sentenceWhole = Console.ReadLine();
             List<string> sentence = sentenceWhole.Split(' ').ToList();
+            for (int n = sentence.Count - 1; n >= 0; n--)
+            {
+                sentence[n] = sentence[n].Trim();
+                if (sentence[n] == "")
+                    sentence.RemoveAt(n);
+                else
+                    sentence[n] = sentence[n].ToLower();
+            }
+
             Console.WriteLine();
 
             Console.Write("You entered: ");
@@ -272,13 +284,15 @@ namespace SpeechTagging
             //printTransitionMatrix(transitionModel); Environment.Exit(0);
 
             Dictionary<ObservationFromState, double> observationModel = createObservationModel(words2);
+          //  loadTests(words2);
+          //  Printing.printObservationMatrix(observationModel, myDictionary);
             Dictionary<WordType, double> sentenceStarters = beginSentenceProb(words2);
 
 
-            foreach (var s in sentenceStarters)
-            {
-                Console.WriteLine(s.Key.ToString() + ", " + s.Value.ToString());
-            }
+          //  foreach (var s in sentenceStarters)
+          //  {
+          //      Console.WriteLine(s.Key.ToString() + ", " + s.Value.ToString());
+          //  }
 
 
             var res = Viterbi.DoViterbi(sentence, transitionModel, observationModel, sentenceStarters);
@@ -301,7 +315,7 @@ namespace SpeechTagging
 
             wordAndNextWords = new Dictionary<string, Dictionary<string, int>>();
 
-            Phase1();
+            Phase2();
 
 
             Console.WriteLine("Press enter to exit");

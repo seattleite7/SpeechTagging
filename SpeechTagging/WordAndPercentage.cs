@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SpeechTagging
 {
-    class WordAndPercentage
+    public class WordAndPercentage
     {
         public String word;
         public double percent;

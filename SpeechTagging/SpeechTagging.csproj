@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="ObservationFromState.cs" />
     <Compile Include="ParsingTools.cs" />
+    <Compile Include="PrettyTable.cs" />
+    <Compile Include="Printing.cs" />
     <Compile Include="StateTransition.cs" />
     <Compile Include="Viterbi.cs" />
     <Compile Include="Word.cs" />
